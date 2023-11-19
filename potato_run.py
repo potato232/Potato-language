@@ -12,4 +12,3 @@ def p(i):
 if __name__ == '__main__':
     while T:
         print(p(input('>>> ')))
-

@@ -32,19 +32,23 @@ class PotatoHi:
             if self.p3 == ' ':  # if potato is null
                 self.potato_next()
             else:               # if potato is not null
-                #
+                # if is character
                 if self.p3 in POTATO_TOL:
                     arr.append(self.potato_tol())
                     self.potato_next()
+                # if is number
                 elif self.p3 in POTATO_NUM:
                     arr.append(self.potato_num())
                     self.potato_next()
+                # if is quotation mark
                 elif self.p3 in Q:
                     arr.append(self.potato_str())
                     self.potato_next()
+                # potato_else
                 else:
-                    self.potato_else()
-                    self.potato_next()
+                    arr.append(self.potato_else())
+                    if self.p3 not in POTATO_TOL:
+                        self.potato_next()
         return arr
 
     # - potato - #
@@ -59,10 +63,6 @@ class PotatoHi:
                 return PotatoT(MUL)
             case '/':
                 return PotatoT(DIV)
-            case '^':
-                return PotatoT(POW)
-            case '√':
-                return PotatoT(SQRT)
             case ',':
                 return PotatoT(COMMA)
             case '(':
@@ -75,6 +75,16 @@ class PotatoHi:
                 return PotatoT(BR)
             case ']':
                 return PotatoT(BL)
+            case '!':
+                return PotatoT(NOT)
+            case '=':
+                return PotatoT(BE)
+            case ':':
+                return PotatoT(COLON)
+            case '<':
+                return PotatoT(LESS)
+            case '>':
+                return PotatoT(GRE)
 
     def potato_num(self):
         arr, o = [], ''
@@ -106,7 +116,7 @@ class PotatoHi:
 
     def potato_str(self):
         def w(q):
-            o = ''
+            o: str = ''
             while self.p3:
                 self.potato_next()
                 if self.p3 == q:
@@ -116,14 +126,22 @@ class PotatoHi:
         return PotatoT(TT_POTATO_STR, w(self.p3))
 
     def potato_else(self):
-        
-        if False:
-            pass
-        else:
-            return self.potato_e(self.p1[self.p2 - 1])
+        def p(i: str):
+            if i in POTATO_BOL:
+                return PotatoT(TT_POTATO_BOL, i)
+            if i in POTATO_KEY_WORD:
+                return PotatoT(TT_POTATO_KEY, i)
+            return PotatoT(TT_POTATO_POT, i)
+        o: str = ''
+        while self.p3:
+            if self.p3 in POTATO_TOL or self.p3 == ' ':
+                return p(o)
+            o += self.p3
+            self.potato_next()
+        return p(o)
 
     def potato_e(self, c, t=N, i=N):
-        t = t if t != N else 'Error'
-        i = i if i != N else 'in potato'
+        t: str = t if t != N else 'Error'
+        i: str = i if i != N else 'in potato'
         self.potato_next()
         return PotatoE(c, t, i).potato_error()
