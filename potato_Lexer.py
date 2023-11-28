@@ -1,4 +1,5 @@
 from potato_tokens import *
+from potato_parser import *
 
 
 class PotatoE:
@@ -34,25 +35,24 @@ class PotatoHi:
             else:               # if potato is not null
                 # if is character
                 if self.p3 in POTATO_TOL:
-                    arr.append(self.potato_tol())
+                    arr.append(str(self.potato_tol()))
                     self.potato_next()
                 # if is number
                 elif self.p3 in POTATO_NUM:
-                    arr.append(self.potato_num())
+                    arr.append(str(self.potato_num()))
                     self.potato_next()
                 # if is quotation mark
                 elif self.p3 in Q:
-                    arr.append(self.potato_str())
+                    arr.append(str(self.potato_str()))
                     self.potato_next()
                 # potato_else
                 else:
-                    arr.append(self.potato_else())
+                    arr.append(str(self.potato_else()))
                     if self.p3 not in POTATO_TOL:
                         self.potato_next()
-        return arr
+        return potato_out(arr)
 
     # - potato - #
-
     def potato_tol(self):   # if potato in POTATO_TOL
         match self.p3:
             case '+':
@@ -69,12 +69,6 @@ class PotatoHi:
                 return PotatoT(RB)
             case ')':
                 return PotatoT(LB)
-            case '.':
-                return PotatoT(DOT)
-            case '[':
-                return PotatoT(BR)
-            case ']':
-                return PotatoT(BL)
             case '!':
                 return PotatoT(NOT)
             case '=':
@@ -85,6 +79,11 @@ class PotatoHi:
                 return PotatoT(LESS)
             case '>':
                 return PotatoT(GRE)
+            case '{':
+                return PotatoT(DO)
+            case '}':
+                return PotatoT(END)
+        return PotatoT(TT_POTATO_POT, self.p3)
 
     def potato_num(self):
         arr, o = [], ''
@@ -134,7 +133,12 @@ class PotatoHi:
             return PotatoT(TT_POTATO_POT, i)
         o: str = ''
         while self.p3:
-            if self.p3 in POTATO_TOL or self.p3 == ' ':
+            pa = self.p3 == ' '
+            if self.p3 in POTATO_TOL or pa:
+                del pa
+                return p(o)
+            if self.p3 in Q or pa:
+                del pa
                 return p(o)
             o += self.p3
             self.potato_next()
@@ -145,3 +149,35 @@ class PotatoHi:
         i: str = i if i != N else 'in potato'
         self.potato_next()
         return PotatoE(c, t, i).potato_error()
+
+
+# potato is stop here #
+def potato_out(data):
+    r = 0
+    for i in data:
+        # == ** // #
+        if str(i) in [MUL, DIV, BE]:
+            i = str(i)
+            if i == MUL:
+                if str(data[r+1]) == MUL:
+                    data[r] = POW
+                    data.pop(r+1)
+            elif i == DIV:
+                if str(data[r+1]) == DIV:
+                    data[r] = DIV2
+                    data.pop(r+1)
+            elif i == BE:
+                if str(data[r+1]) == BE:
+                    data[r] = EQUAL
+                    data.pop(r+1)
+        r += 1
+    return PotatoP(data).potato()
+
+
+def reception(data):
+    r = 0
+    while r < len(data):
+        i = data[r]
+        data[r] = PotatoHi(i[0]).potato1()
+        r += 1
+    return data
